@@ -30,12 +30,16 @@ export const setFeature = (feature: Feature | null) => {
 }
 
 export const searchAddress = async () => {
-  const response = await fetch(
-    `/api/addresses?searchAddress=${searchStore.searchAddress}`
-  )
-  const addresses = await response.json()
-  setAddressOptions(addresses)
-  setFeature(null)
+  try {
+    const response = await fetch(
+      `/api/addresses?searchAddress=${searchStore.searchAddress}`
+    )
+    const addresses = await response.json()
+    setAddressOptions(addresses)
+    setFeature(null)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 export const routeState = proxy<{
@@ -66,14 +70,18 @@ export const handleRouteSelect = (code: string, isChecked: boolean) => {
 }
 
 export const handleSearch = async (feature: Feature | null) => {
-  if (!feature) return
+  try {
+    if (!feature) return
 
-  searchStore.feature = feature
+    searchStore.feature = feature
 
-  let lat = feature.geometry.coordinates[1]
-  let lon = feature.geometry.coordinates[0]
+    let lat = feature.geometry.coordinates[1]
+    let lon = feature.geometry.coordinates[0]
 
-  const response = await fetch(`/api/byStops?lat=${lat}&lon=${lon}`)
-  const data = await response.json()
-  routeState.byStops = data
+    const response = await fetch(`/api/byStops?lat=${lat}&lon=${lon}`)
+    const data = await response.json()
+    routeState.byStops = data
+  } catch (error) {
+    console.error(error)
+  }
 }

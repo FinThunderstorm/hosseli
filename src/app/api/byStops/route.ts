@@ -1,7 +1,6 @@
 import { type NextRequest } from "next/server"
 import { getQuery } from "../../utils/api"
 import { mapHSLData } from "../../utils/dataMapper"
-import TestData from "../../../data/exactum-500m-08042024-1755.json"
 
 export const dynamic = "force-dynamic"
 export const GET = async (request: NextRequest) => {
