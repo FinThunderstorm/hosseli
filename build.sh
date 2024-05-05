@@ -6,8 +6,6 @@ readonly ENV="prod"
 source "$repository/scripts/common.sh"
 
 function main() {
-    required_command npm
-
     pushd "$repository"
 
     echo "::group::Installing node and dependencies"
