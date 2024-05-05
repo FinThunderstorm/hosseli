@@ -12,4 +12,4 @@ Hösseli - HSL Open Data Visualizer made during Interactive Data Visualization -
 
 Application itself: MIT License
 
-Data used by application: © HSL 2024, © Digitransit 2024 and © [https://www.openstreetmap.org/copyright](OpenStreetMap) contributors
+Data used by application: © HSL 2024, © Digitransit 2024 and © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
