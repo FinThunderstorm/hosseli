@@ -9,6 +9,8 @@ function main() {
     required_command npm
     pushd "$repository"
 
+    get_environment_variables
+
     npm run dev
 
     popd

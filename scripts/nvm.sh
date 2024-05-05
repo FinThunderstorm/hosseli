@@ -1,4 +1,5 @@
 # Downloaded from https://github.com/nvm-sh/nvm/blob/master/nvm.sh
+# Version 0.39.7
 
 # Node Version Manager
 # Implemented as a POSIX-compliant function

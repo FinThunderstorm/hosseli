@@ -1,0 +1,19 @@
+*
+# source code
+!src/app
+!public
+# scripts
+!scripts/start-prod-server.sh
+!scripts/common.sh
+!scripts/nvm.sh
+!build.sh
+# configs
+!package.json
+!package-lock.json
+!next.config.mjs
+!next-env.d.ts
+!.nvmrc
+!postcss.config.js
+!tailwind.config.ts
+!tsconfig.json
+!LICENSE

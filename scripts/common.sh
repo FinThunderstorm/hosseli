@@ -23,9 +23,12 @@ function check_node_version() {
     echo "::debug::Setting up right Node version"
 
     # This will use always repo provided nvm if nvm is not in PATH etc.
+    echo "::debug::Exporting NVM_DIR"
     export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    echo "::debug::Sourcing NVM"
     source "./scripts/nvm.sh"
-    nvm use || nvm install
+    echo "::debug::Trying to use current Node or installing"
+    nvm use || nvm install --no-progress
 
     popd
 }
@@ -57,4 +60,17 @@ function npm_ci() {
     fi
 
     popd
+}
+
+function get_environment_variables() {
+    if [[ "$ENV" == "dev" ]]
+    then
+        export PORT=${PORT:-"6969"}
+        export NODE_ENV="development"
+    else
+        export PORT=${PORT:-"3000"}
+        export NODE_ENV="production"
+    fi
+
+    export DIGITRANSIT_SUBSCRIPTION_KEY=${DIGITRANSIT_SUBSCRIPTION_KEY:-""}
 }

@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset -o pipefail
+set -o errexit -o nounset -o pipefail +e
 
 readonly repository="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 readonly ENV="prod"
 source "$repository/scripts/common.sh"
 
 function main() {
-    pushd "$repository"
+    required_command docker
+    required_command docker compose
 
-    echo "::group::Installing node and dependencies"
-    check_node_version
-    npm_ci
-    echo "::endgroup::"
+    pushd "$repository"
+    get_environment_variables
 
     echo "::group::Building application"
     npm run build
