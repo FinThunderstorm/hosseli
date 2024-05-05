@@ -17,14 +17,16 @@ import Paper from "@mui/material/Paper"
 import Typography from "@mui/material/Typography"
 import Card from "@mui/material/Card"
 
-const Sidebar = () => {
+const Sidebar = ({ isWaltti }: { isWaltti: boolean }) => {
   const searchSnapshot = useProxy(searchStore, { sync: true })
   const routeSnapshot = useProxy(routeState, { sync: true })
 
   return (
     <Paper elevation={2} className="sidebar p-2">
       <Card className="search flex flex-col gap-2 p-2 mb-2 backdrop-blur">
-        <Typography variant="overline">Hösseli</Typography>
+        <Typography variant="overline">
+          Hösseli {isWaltti ? "Walttified" : ""}
+        </Typography>
         <TextField
           type="text"
           className="border me-8"
@@ -57,7 +59,7 @@ const Sidebar = () => {
             isOptionEqualToValue={(a, b) => a.properties.id === b.properties.id}
             options={searchSnapshot.addressOptions}
             onChange={(e, newValue) => {
-              if (newValue) handleSearch(newValue)
+              if (newValue) handleSearch(newValue, isWaltti)
             }}
             value={searchSnapshot.feature}
           />

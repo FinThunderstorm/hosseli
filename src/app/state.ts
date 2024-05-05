@@ -69,7 +69,10 @@ export const handleRouteSelect = (code: string, isChecked: boolean) => {
     : routeState.routes.filter((or: any) => or !== code)
 }
 
-export const handleSearch = async (feature: Feature | null) => {
+export const handleSearch = async (
+  feature: Feature | null,
+  isWaltti: boolean
+) => {
   try {
     if (!feature) return
 
@@ -78,7 +81,9 @@ export const handleSearch = async (feature: Feature | null) => {
     let lat = feature.geometry.coordinates[1]
     let lon = feature.geometry.coordinates[0]
 
-    const response = await fetch(`/api/byStops?lat=${lat}&lon=${lon}`)
+    const response = await fetch(
+      `/api/byStops?lat=${lat}&lon=${lon}${isWaltti ? "&waltti=waltti" : ""}`
+    )
     const data = await response.json()
     routeState.byStops = data
   } catch (error) {

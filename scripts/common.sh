@@ -70,7 +70,7 @@ function get_environment_variables() {
     else
         export PORT=${PORT:-"3000"}
         export NODE_ENV="production"
+        export DIGITRANSIT_SUBSCRIPTION_KEY=${DIGITRANSIT_SUBSCRIPTION_KEY:-""}
     fi
 
-    export DIGITRANSIT_SUBSCRIPTION_KEY=${DIGITRANSIT_SUBSCRIPTION_KEY:-""}
 }
