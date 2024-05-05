@@ -1,113 +1,210 @@
-import Image from "next/image";
+"use client"
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  Polyline,
+  Circle,
+} from "react-leaflet"
+import Button from "@mui/material/Button"
+import TextField from "@mui/material/TextField"
+import Autocomplete from "@mui/material/Autocomplete"
+import { useProxy } from "valtio/utils"
+import {
+  handleRouteSelect,
+  handleSearch,
+  handleStopSelect,
+  routeState,
+  searchAddress,
+  searchStore,
+  setSearchAddress,
+} from "./state"
+import { Feature } from "./types"
+import Paper from "@mui/material/Paper"
+import Typography from "@mui/material/Typography"
+import Card from "@mui/material/Card"
+import dayjs from "dayjs"
 
-export default function Home() {
+const Page = () => {
+  const searchSnapshot = useProxy(searchStore, { sync: true })
+  const routeSnapshot = useProxy(routeState, { sync: true })
+
+  const routePositions = routeSnapshot.byStops.flatMap((stop: any) =>
+    stop.routes
+      .filter((route: any) => {
+        if (
+          routeSnapshot.routes.length === 0 &&
+          routeSnapshot.stops.length === 0
+        ) {
+          return true
+        }
+        if (
+          routeSnapshot.stops.length > 0 &&
+          routeSnapshot.routes.length === 0
+        ) {
+          return routeSnapshot.stops.includes(stop.gtfsId)
+        }
+        if (routeSnapshot.stops.length > 0 && routeSnapshot.routes.length > 0) {
+          return (
+            routeSnapshot.stops.includes(stop.gtfsId) &&
+            routeSnapshot.routes.includes(route.code)
+          )
+        }
+        return routeSnapshot.routes.includes(route.code)
+      })
+      .flatMap((route: any) => route.stoptimes)
+  )
+
+  const stoptimes = routePositions.flatMap((rp: any) => rp.stoptimes)
+
+  const timeColors: Record<number, string> = {
+    0: "#FFEF00",
+    5: "#ffd300",
+    10: "#feb700",
+    15: "#f99b00",
+    20: "#f37e00",
+    30: "#e96000",
+    45: "#dd3f00",
+    60: "#cf0a0c",
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <main>
+      <div className="layout">
+        <MapContainer
+          className="map"
+          center={[60.204477007147915, 24.962573209994307]}
+          zoom={13}
+        >
+          <TileLayer
+            attribution={`&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; Digitransit ${dayjs().format(
+              "YYYY"
+            )}, &copy; HSL ${dayjs().format("YYYY")}`}
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {routeSnapshot.byStops
+            .filter((stop: any) =>
+              routeSnapshot.stops.length > 0
+                ? routeSnapshot.stops.includes(stop.gtfsId)
+                : true
+            )
+            .map((stop: any) => (
+              <>
+                <Marker key={stop.gtfsId} position={[stop.lat, stop.lon]}>
+                  <Popup>
+                    <p>
+                      {stop.gtfsId} {stop.code} {stop.name}
+                    </p>
+                    <ul>
+                      {stop.routes.map((route: any) => (
+                        <li key={route.code}>{route.name}</li>
+                      ))}
+                    </ul>
+                  </Popup>
+                </Marker>
+              </>
+            ))}
+          {routePositions.map((rp: any, index: number) => (
+            <Polyline
+              key={rp.key}
+              pathOptions={{
+                color: rp.color,
+              }}
+              positions={rp.positionsFromStop}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          ))}
+          {stoptimes.map((st: any) => {
+            return (
+              <Circle
+                center={[st.lat, st.lon]}
+                radius={7}
+                color={timeColors[st.arrivalTimeFromStartOver]}
+              >
+                <Popup>{JSON.stringify(st)}</Popup>
+              </Circle>
+            )
+          })}
+        </MapContainer>
+        <Paper elevation={2} className="sidebar p-2">
+          <Card className="search flex flex-col gap-2 p-2 mb-2 backdrop-blur">
+            <Typography variant="overline">Hösseli</Typography>
+            <TextField
+              type="text"
+              className="border me-8"
+              label="Address"
+              value={searchSnapshot.searchAddress}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setSearchAddress(e.target.value)
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={() => {
+                searchAddress()
+              }}
+            >
+              search
+            </Button>
+            {searchSnapshot.addressOptions.length > 0 && (
+              <Autocomplete<Feature>
+                renderInput={(props) => (
+                  <TextField
+                    type="text"
+                    className="border me-8"
+                    label="Options"
+                    {...props}
+                  />
+                )}
+                getOptionLabel={(opt) => opt.properties.label}
+                getOptionKey={(opt) => opt.properties.id}
+                isOptionEqualToValue={(a, b) =>
+                  a.properties.id === b.properties.id
+                }
+                options={searchSnapshot.addressOptions}
+                onChange={(e, newValue) => {
+                  if (newValue) handleSearch(newValue)
+                }}
+                value={searchSnapshot.feature}
+              />
+            )}
+          </Card>
+          <ul>
+            {routeSnapshot.byStops.map((stop: any) => (
+              <li key={stop.gtfsId}>
+                <div className="flex gap-2">
+                  <div className="flex gap-2 justify-items-start items-start">
+                    <input
+                      type="checkbox"
+                      className="p-1"
+                      onChange={(e) => {
+                        handleStopSelect(stop.gtfsId, e.target.checked)
+                      }}
+                    />
+                    {stop.code}
+                  </div>
+                  <ul>
+                    {stop.routes.map((route: any) => (
+                      <li key={route.gtfsId} className="flex gap-2">
+                        <input
+                          type="checkbox"
+                          className="m-1"
+                          onChange={(e) => {
+                            handleRouteSelect(route.code, e.target.checked)
+                          }}
+                        />
+                        {route.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Paper>
       </div>
     </main>
-  );
+  )
 }
+
+export default Page

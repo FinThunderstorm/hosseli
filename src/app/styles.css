@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.layout {
+  display: grid;
+  grid-template-columns: [start map-start] auto [map-end sidebar-start] 500px [sidebar-end end];
+  grid-template-rows: [start map-start sidebar-start] 100vh [map-end sidebar-end end];
+  gap: 16px;
+}
+
+.map {
+  grid-column: map-start / map-end;
+  grid-row: map-start / map-end;
+}
+
+.sidebar {
+  grid-column: sidebar-start / sidebar-end;
+  grid-row: sidebar-start / sidebar-end;
+  overflow-y: auto;
+}
+
+.search {
+  position: sticky;
+  top: 0;
+  height: min-content;
+}
