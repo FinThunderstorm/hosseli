@@ -6,11 +6,11 @@ readonly ENV="prod"
 source "$repository/scripts/common.sh"
 
 function main() {
-    required_command docker
-    required_command docker compose
-
     pushd "$repository"
     get_environment_variables
+
+    check_node_version
+    npm_ci
 
     echo "::group::Building application"
     npm run build
