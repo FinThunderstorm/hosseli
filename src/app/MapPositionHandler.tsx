@@ -8,10 +8,6 @@ const MapPositionHandler = () => {
   const map = useMap()
 
   useEffect(() => {
-    console.log(
-      "searchSnapshot.feature",
-      searchSnapshot.feature?.geometry.coordinates
-    )
     map.setView(
       searchSnapshot.feature?.geometry.coordinates
         ? [
