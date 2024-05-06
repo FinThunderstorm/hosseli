@@ -1,21 +1,6 @@
 "use client"
-import Button from "@mui/material/Button"
-import TextField from "@mui/material/TextField"
-import Autocomplete from "@mui/material/Autocomplete"
 import { useProxy } from "valtio/utils"
-import {
-  handleRouteSelect,
-  handleSearch,
-  handleStopSelect,
-  routeState,
-  searchAddress,
-  searchStore,
-  setSearchAddress,
-} from "./state"
-import { Feature } from "./types"
-import Paper from "@mui/material/Paper"
-import Typography from "@mui/material/Typography"
-import Card from "@mui/material/Card"
+import { handleRouteSelect, handleStopSelect, routeState } from "./state"
 
 const StopRouteSelector = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
