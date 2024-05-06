@@ -10,6 +10,7 @@ import {
 import { useProxy } from "valtio/utils"
 import { routeState } from "./state"
 import dayjs from "dayjs"
+import MapPositionHandler from "./MapPositionHandler"
 
 const Map = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
@@ -65,6 +66,7 @@ const Map = () => {
         )}, &copy; HSL ${dayjs().format("YYYY")}`}
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      <MapPositionHandler />
       {routeSnapshot.byStops
         .filter((stop: any) =>
           routeSnapshot.stops.length > 0
