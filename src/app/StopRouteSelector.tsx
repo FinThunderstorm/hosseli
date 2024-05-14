@@ -4,7 +4,7 @@ import { useProxy } from "valtio/utils"
 import { handleRouteSelect, handleStopSelect, routeState } from "./state"
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
 import { formatRoute, formatStop } from "./utils/formatUtils"
-import type { Route, Stop } from "./types"
+import type { Route } from "./types"
 
 const StopRouteSelector = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
@@ -32,7 +32,7 @@ const StopRouteSelector = () => {
                 </FormGroup>
                 {stop.routes.map((route: Route) => {
                   return (
-                    <div className="pl-8">
+                    <div className="pl-8" key={route.key}>
                       <FormGroup>
                         <FormControlLabel
                           control={

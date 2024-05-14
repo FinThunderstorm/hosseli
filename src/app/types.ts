@@ -68,11 +68,23 @@ export type Stoptime = {
   color: string
   arrival: string
   departure: string
-  stoptimes: any[]
+  stops: TripStop[]
 }
 
-export type RouteStop = {
+export type TripStop = {
+  key: string
   code: string
   name: string
   gtfsId: string
+  lat: number
+  lon: number
+  locationType: string
+  routeCode: string
+  routeHeadsign: string
+  routeName: string
+  pickupType: string
+  arrival: string
+  departure: string
+  arrivalTimeFromStart: number
+  arrivalTimeFromStartOver: "0" | "5" | "10" | "15" | "20" | "30" | "45" | "60"
 }

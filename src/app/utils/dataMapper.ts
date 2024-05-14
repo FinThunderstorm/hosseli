@@ -2,7 +2,7 @@ import distanceFrom from "distance-from"
 import dayjs from "dayjs"
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter"
 import "dayjs/locale/fi"
-import type { Coordinate, Route, Stop, Stoptime } from "../types"
+import type { Coordinate, Route, Stop, Stoptime, TripStop } from "../types"
 
 dayjs.extend(isSameOrAfter)
 
@@ -88,8 +88,8 @@ export const mapHSLData = (input: any): Stop[] => {
               departure: dayjs
                 .unix(stoptime.serviceDay + stoptime.scheduledDeparture)
                 .format("YYYY-MM-DDTHH:mm:ss"),
-              stoptimes: stoptime.trip.stoptimesForDate
-                .map((std: any) => {
+              stops: stoptime.trip.stoptimesForDate
+                .map((std: any): TripStop => {
                   const arrivalTimeFromStart = dayjs
                     .unix(std.serviceDay + std.scheduledArrival)
                     .diff(
@@ -100,16 +100,16 @@ export const mapHSLData = (input: any): Stop[] => {
                     )
 
                   return {
+                    key: `${edge.node.stop.gtfsId}-${stoptime.trip.gtfsId}-${std.stop.code}`,
                     code: std.stop.code,
                     name: std.stop.name,
                     gtfsId: std.stop.gtfsId,
                     lat: std.stop.lat,
                     lon: std.stop.lon,
-
                     locationType: std.stop.locationType,
                     routeCode: stp.pattern.code,
                     routeHeadsign: stp.pattern.headsign,
-                    routeName: stp.pattern.name,
+                    routeName: stp.pattern.route.shortName,
                     pickupType: std.pickupType,
                     arrival: dayjs
                       .unix(std.serviceDay + std.scheduledArrival)
@@ -118,14 +118,6 @@ export const mapHSLData = (input: any): Stop[] => {
                       .unix(std.serviceDay + std.scheduledDeparture)
                       .format("YYYY-MM-DDTHH:mm:ss"),
                     arrivalTimeFromStart: arrivalTimeFromStart,
-                    departureTimeFromStart: dayjs
-                      .unix(std.serviceDay + std.scheduledDeparture)
-                      .diff(
-                        dayjs.unix(
-                          stoptime.serviceDay + stoptime.scheduledDeparture
-                        ),
-                        "minute"
-                      ),
                     arrivalTimeFromStartOver:
                       arrivalTimeFromStart < 5
                         ? "0"
@@ -149,7 +141,7 @@ export const mapHSLData = (input: any): Stop[] => {
                         : "60",
                   }
                 })
-                .filter((std: any, index: number) => {
+                .filter((std: TripStop, index: number) => {
                   const indexOfStop = stoptime.trip.stoptimesForDate.findIndex(
                     (st: any) => st.stop.gtfsId === edge.node.stop.gtfsId
                   )

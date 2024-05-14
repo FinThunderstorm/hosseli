@@ -5,7 +5,6 @@ import {
   Popup,
   TileLayer,
   Polyline,
-  Circle,
   CircleMarker,
   Tooltip,
 } from "react-leaflet"
@@ -14,6 +13,7 @@ import { routeState } from "./state"
 import dayjs from "dayjs"
 import MapPositionHandler from "./MapPositionHandler"
 import type { Stop, Route, Stoptime } from "./types"
+import { formatRoute, formatStop } from "./utils/formatUtils"
 
 const Map = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
@@ -49,7 +49,7 @@ const Map = () => {
         .flatMap((route: Route): Stoptime[] => route.stoptimes)
   )
 
-  const stoptimes = routePositions.flatMap((rp: Stoptime) => rp.stoptimes)
+  const stoptimes = routePositions.flatMap((rp: Stoptime) => rp.stops)
 
   return (
     <MapContainer
@@ -75,14 +75,12 @@ const Map = () => {
         })
         .map((stop: Stop) => (
           <>
-            <Marker key={stop.gtfsId} position={[stop.lat, stop.lon]}>
-              <Popup>
-                <p>
-                  {stop.gtfsId} {stop.code} {stop.name}
-                </p>
+            <Marker key={stop.key} position={[stop.lat, stop.lon]}>
+              <Popup key={stop.key}>
+                <p>{formatStop(stop)}</p>
                 <ul>
                   {stop.routes.map((route: Route) => (
-                    <li key={route.code}>{route.name}</li>
+                    <li key={route.key}>{formatRoute(route)}</li>
                   ))}
                 </ul>
               </Popup>
@@ -100,8 +98,34 @@ const Map = () => {
       ))}
       {stoptimes.map((st: any) => {
         return (
-          <CircleMarker center={[st.lat, st.lon]} radius={4} color="#666666">
-            <Popup>{JSON.stringify(st)}</Popup>
+          <CircleMarker
+            key={st.key}
+            center={[st.lat, st.lon]}
+            radius={4}
+            color="#666666"
+          >
+            <Popup>
+              <ul>
+                <li>
+                  <b>Stop:</b> {st.code} {st.name}
+                </li>
+                <li>
+                  <b>Route:</b> {st.routeCode} {st.routeName}
+                </li>
+                <li>
+                  <b>Arrives at:</b> {st.arrival}
+                </li>
+                <li>
+                  <b>Departures on:</b> {st.departure}
+                </li>
+                <li>
+                  <b>Time since start:</b> {st.arrivalTimeFromStart}
+                </li>
+                <li>
+                  <b>Time group since start:</b> {st.arrivalTimeFromStartOver}
+                </li>
+              </ul>
+            </Popup>
             {(st.arrivalTimeFromStart || st.arrivalTimeFromStart) && (
               <Tooltip permanent>{st.arrivalTimeFromStart}</Tooltip>
             )}
