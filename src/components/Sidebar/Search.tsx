@@ -23,7 +23,7 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
   return (
     <div className="search flex flex-col gap-2 px-2 pb-2 mb-2 border-b">
       <div className="flex flex-row justify-between">
-        <Typography variant="overline">
+        <Typography variant="overline" fontWeight={700}>
           Hösseli {isWaltti ? "Walttified" : ""}
         </Typography>
         <Link
