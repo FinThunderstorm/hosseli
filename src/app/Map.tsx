@@ -107,17 +107,11 @@ const Map = () => {
       ))}
       {stoptimes.map((st: any) => {
         return (
-          <CircleMarker
-            center={[st.lat, st.lon]}
-            radius={7}
-            color={timeColors[st.arrivalTimeFromStartOver]}
-          >
+          <CircleMarker center={[st.lat, st.lon]} radius={4} color="#666666">
             <Popup>{JSON.stringify(st)}</Popup>
-            <Tooltip permanent>
-              {st.arrivalTimeFromStart || st.arrivalTimeFromStart === 0
-                ? st.arrivalTimeFromStart
-                : ""}
-            </Tooltip>
+            {(st.arrivalTimeFromStart || st.arrivalTimeFromStart) && (
+              <Tooltip permanent>{st.arrivalTimeFromStart}</Tooltip>
+            )}
           </CircleMarker>
         )
       })}
