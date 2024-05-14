@@ -12,18 +12,30 @@ import Button from "@mui/material/Button"
 import CircularProgress from "@mui/material/CircularProgress"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
-
-import type { Feature } from "../../types"
 import Grid from "@mui/material/Grid"
+import ExitToAppIcon from "@mui/icons-material/ExitToApp"
+import Link from "next/link"
+import type { Feature } from "../../types"
 
 const Search = ({ isWaltti }: { isWaltti: boolean }) => {
   const searchSnapshot = useProxy(searchState, { sync: true })
 
   return (
     <div className="search flex flex-col gap-2 px-2 pb-2 mb-2 border-b">
-      <Typography variant="overline">
-        Hösseli {isWaltti ? "Walttified" : ""}
-      </Typography>
+      <div className="flex flex-row justify-between">
+        <Typography variant="overline">
+          Hösseli {isWaltti ? "Walttified" : ""}
+        </Typography>
+        <Link
+          href={isWaltti ? "/" : "/waltti"}
+          className="flex flex-row gap-1 items-center"
+        >
+          <ExitToAppIcon fontSize="small" />
+          <Typography variant="overline" className="hover:underline">
+            {isWaltti ? "HSL" : "Waltti"}
+          </Typography>
+        </Link>
+      </div>
       <TextField
         type="text"
         label="Address"
