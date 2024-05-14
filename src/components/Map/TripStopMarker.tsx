@@ -8,19 +8,14 @@ const TripStopMarker = ({ st }: { st: TripStop }) => {
   const routeSnapshot = useProxy(routeState, { sync: true })
 
   return (
-    <CircleMarker
-      key={st.key}
-      center={[st.lat, st.lon]}
-      radius={4}
-      color="#666666"
-    >
+    <CircleMarker key={st.key} center={st.position} radius={4} color="#666666">
       <Popup>
         <ul>
           <li>
             <b>Stop:</b> {st.code} {st.name}
           </li>
           <li>
-            <b>Route:</b> {st.routeCode} {st.routeName}
+            <b>Route:</b> {st.routeShortName} {st.routeHeadsign}
           </li>
           <li>
             <b>Arrives at:</b> {st.arrival}
@@ -37,7 +32,7 @@ const TripStopMarker = ({ st }: { st: TripStop }) => {
         </ul>
       </Popup>
       {(st.arrivalTimeFromStart || st.arrivalTimeFromStart) &&
-        routeSnapshot.routes.length > 0 && (
+        routeSnapshot.routes.length === 1 && (
           <Tooltip permanent>{st.arrivalTimeFromStart}</Tooltip>
         )}
     </CircleMarker>

@@ -40,8 +40,7 @@ export type Stop = {
   gtfsId: string
   locationType: string
   platformCode: string
-  lat: number
-  lon: number
+  position: Coordinate
   name: string
   routes: Route[]
 }
@@ -51,10 +50,8 @@ export type Route = {
   gtfsId: string
   code: string
   headsign: string
-  name: string
   mode: string
   shortName: string
-  longName: string
   stoptimes: Stoptime[]
 }
 
@@ -62,7 +59,6 @@ export type Stoptime = {
   key: string
   gtfsId: string
   routeShortName: string
-  geometry: Coordinate[]
   nearestPosition: Coordinate
   positionsFromStop: Coordinate[]
   color: string
@@ -76,15 +72,29 @@ export type TripStop = {
   code: string
   name: string
   gtfsId: string
-  lat: number
-  lon: number
+  position: Coordinate
   locationType: string
-  routeCode: string
+  routeShortName: string
   routeHeadsign: string
-  routeName: string
   pickupType: string
   arrival: string
   departure: string
   arrivalTimeFromStart: number
-  arrivalTimeFromStartOver: "0" | "5" | "10" | "15" | "20" | "30" | "45" | "60"
+  arrivalTimeFromStartOver: AverageTime
+}
+
+export type AverageTime =
+  | "0"
+  | "5"
+  | "10"
+  | "15"
+  | "20"
+  | "30"
+  | "45"
+  | "60"
+  | "60+"
+
+export type AverageTimeLocation = {
+  averageTime: AverageTime
+  position: Coordinate
 }

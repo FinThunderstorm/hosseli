@@ -16,13 +16,12 @@ export const getStopsQuery = (lat: number, lon: number) => {
           stoptimesForPatterns(numberOfDepartures: 1, startTime: 0, omitNonPickups: true) {
             pattern {
               code
-              name
               headsign
               route {
                 gtfsId
                 mode
                 shortName
-                longName
+                type
               }
             }
             stoptimes {

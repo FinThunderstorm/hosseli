@@ -2,7 +2,14 @@ import distanceFrom from "distance-from"
 import dayjs from "dayjs"
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter"
 import "dayjs/locale/fi"
-import type { Coordinate, Route, Stop, Stoptime, TripStop } from "../types"
+import type {
+  AverageTime,
+  Coordinate,
+  Route,
+  Stop,
+  Stoptime,
+  TripStop,
+} from "../types"
 
 dayjs.extend(isSameOrAfter)
 
@@ -12,15 +19,12 @@ export const getColorByType = (type: string) => {
    */
   const colors: Record<string, string> = {
     BUS: "#007ac9",
-    "mode-bus-express": "#CA4000",
-    "mode-bus-local": "#007ac9",
+    EXPRESSBUS: "#CA4000",
     RAIL: "#8c4799",
     TRAM: "#008151",
     FERRY: "#007A97",
-    "mode-ferry-pier": "#666666",
     SUBWAY: "#CA4000",
     CITYBIKE: "#f2b62d",
-    "mode-citybike-secondary": "#333333",
     SPEEDTRAM: "#007E79",
   }
 
@@ -28,28 +32,38 @@ export const getColorByType = (type: string) => {
 }
 
 export const mapHSLData = (input: any): Stop[] => {
-  return input.data.stopsByRadius.edges.map(
-    (edge: any): Stop => ({
+  return input.data.stopsByRadius.edges.map((edge: any): Stop => {
+    const stop: Omit<Stop, "routes"> = {
       key: edge.node.stop.gtfsId,
+      gtfsId: edge.node.stop.gtfsId,
       distance: edge.node.distance,
       code: edge.node.stop.code,
-      gtfsId: edge.node.stop.gtfsId,
       locationType: edge.node.stop.locationType,
       platformCode: edge.node.stop.platformCode || "",
-      lat: edge.node.stop.lat,
-      lon: edge.node.stop.lon,
+      position: [edge.node.stop.lat, edge.node.stop.lon],
       name: edge.node.stop.name,
-      routes: edge.node.stop.stoptimesForPatterns.map(
-        (stp: any): Route => ({
-          key: `${edge.node.stop.gtfsId}-${stp.pattern.route.gtfsId}`,
+    }
+
+    const routes: Route[] = edge.node.stop.stoptimesForPatterns.map(
+      (stp: any): Route => {
+        const mode =
+          stp.pattern.route.type === 900
+            ? "SPEEDTRAM"
+            : stp.pattern.route.type === 702
+            ? "EXPRESSBUS"
+            : stp.pattern.route.mode
+
+        const route: Omit<Route, "stoptimes"> = {
+          key: `${stop.key}-${stp.pattern.route.gtfsId}`,
           gtfsId: stp.pattern.route.gtfsId,
           code: stp.pattern.code,
           headsign: stp.pattern.headsign,
-          name: stp.pattern.name,
-          mode: stp.pattern.route.mode,
+          mode: mode,
           shortName: stp.pattern.route.shortName,
-          longName: stp.pattern.route.longName,
-          stoptimes: stp.stoptimes.map((stoptime: any): Stoptime => {
+        }
+
+        const stoptimes: Stoptime[] = stp.stoptimes.map(
+          (stoptime: any): Stoptime => {
             const geometry: Coordinate[] = stoptime.trip.geometry.map(
               (geometry: Coordinate[]) => [geometry[1], geometry[0]]
             )
@@ -66,92 +80,106 @@ export const mapHSLData = (input: any): Stop[] => {
                           .in("cm"),
                 }
               })
-              .sort((a: any, b: any) => a.dist - b.dist)[0]
+              .sort((a, b) => a.dist - b.dist)[0]
 
             const nearestPositionIndex = geometry.findIndex(
-              (g: any) =>
+              (g) =>
                 g[0] === nearestPosition.pos[0] &&
-                g[0] === nearestPosition.pos[0]
+                g[1] === nearestPosition.pos[1]
             )
 
-            return {
-              key: `${edge.node.stop.gtfsId}-${stoptime.trip.gtfsId}`,
+            const stoptimeOut: Omit<Stoptime, "stops"> = {
+              key: `${stop.key}-${route.key}-${stoptime.trip.gtfsId}`,
               gtfsId: stoptime.trip.gtfsId,
               routeShortName: stoptime.trip.routeShortName,
-              geometry: geometry,
               nearestPosition: nearestPosition.pos,
               positionsFromStop: geometry.slice(nearestPositionIndex),
-              color: getColorByType(stp.pattern.route.mode),
+              color: getColorByType(route.mode),
               arrival: dayjs
                 .unix(stoptime.serviceDay + stoptime.scheduledArrival)
                 .format("YYYY-MM-DDTHH:mm:ss"),
               departure: dayjs
                 .unix(stoptime.serviceDay + stoptime.scheduledDeparture)
                 .format("YYYY-MM-DDTHH:mm:ss"),
-              stops: stoptime.trip.stoptimesForDate
-                .map((std: any): TripStop => {
-                  const arrivalTimeFromStart = dayjs
-                    .unix(std.serviceDay + std.scheduledArrival)
-                    .diff(
-                      dayjs.unix(
-                        stoptime.serviceDay + stoptime.scheduledDeparture
-                      ),
-                      "minute"
-                    )
+            }
 
-                  return {
-                    key: `${edge.node.stop.gtfsId}-${stoptime.trip.gtfsId}-${std.stop.code}`,
-                    code: std.stop.code,
-                    name: std.stop.name,
-                    gtfsId: std.stop.gtfsId,
-                    lat: std.stop.lat,
-                    lon: std.stop.lon,
-                    locationType: std.stop.locationType,
-                    routeCode: stp.pattern.code,
-                    routeHeadsign: stp.pattern.headsign,
-                    routeName: stp.pattern.route.shortName,
-                    pickupType: std.pickupType,
-                    arrival: dayjs
-                      .unix(std.serviceDay + std.scheduledArrival)
-                      .format("YYYY-MM-DDTHH:mm:ss"),
-                    departure: dayjs
-                      .unix(std.serviceDay + std.scheduledDeparture)
-                      .format("YYYY-MM-DDTHH:mm:ss"),
-                    arrivalTimeFromStart: arrivalTimeFromStart,
-                    arrivalTimeFromStartOver:
-                      arrivalTimeFromStart < 5
-                        ? "0"
-                        : arrivalTimeFromStart >= 5 && arrivalTimeFromStart < 10
-                        ? "5"
-                        : arrivalTimeFromStart >= 10 &&
-                          arrivalTimeFromStart < 15
-                        ? "10"
-                        : arrivalTimeFromStart >= 15 &&
-                          arrivalTimeFromStart < 20
-                        ? "15"
-                        : arrivalTimeFromStart >= 20 &&
-                          arrivalTimeFromStart < 30
-                        ? "20"
-                        : arrivalTimeFromStart >= 30 &&
-                          arrivalTimeFromStart < 45
-                        ? "30"
-                        : arrivalTimeFromStart >= 45 &&
-                          arrivalTimeFromStart < 60
-                        ? "45"
-                        : "60",
-                  }
-                })
-                .filter((std: TripStop, index: number) => {
-                  const indexOfStop = stoptime.trip.stoptimesForDate.findIndex(
-                    (st: any) => st.stop.gtfsId === edge.node.stop.gtfsId
+            const stops: TripStop[] = stoptime.trip.stoptimesForDate
+              .map((std: any): TripStop => {
+                const arrivalTimeFromStart = dayjs
+                  .unix(std.serviceDay + std.scheduledArrival)
+                  .diff(
+                    dayjs.unix(
+                      stoptime.serviceDay + stoptime.scheduledDeparture
+                    ),
+                    "minute"
                   )
 
-                  return index >= indexOfStop
-                }),
+                return {
+                  key: `${edge.node.stop.gtfsId}-${stoptime.trip.gtfsId}-${std.stop.code}`,
+                  code: std.stop.code,
+                  name: std.stop.name,
+                  gtfsId: std.stop.gtfsId,
+                  position: [std.stop.lat, std.stop.lon],
+                  locationType: std.stop.locationType,
+                  routeShortName: route.shortName,
+                  routeHeadsign: route.headsign,
+                  pickupType: std.pickupType,
+                  arrival: dayjs
+                    .unix(std.serviceDay + std.scheduledArrival)
+                    .format("YYYY-MM-DDTHH:mm:ss"),
+                  departure: dayjs
+                    .unix(std.serviceDay + std.scheduledDeparture)
+                    .format("YYYY-MM-DDTHH:mm:ss"),
+                  arrivalTimeFromStart: arrivalTimeFromStart,
+                  arrivalTimeFromStartOver:
+                    mapArrivalTime(arrivalTimeFromStart),
+                }
+              })
+              .filter((std: TripStop, index: number) => {
+                const indexOfStop = stoptime.trip.stoptimesForDate.findIndex(
+                  (st: any) => st.stop.gtfsId === stop.gtfsId
+                )
+
+                return index >= indexOfStop
+              })
+
+            return {
+              ...stoptimeOut,
+              stops: stops,
             }
-          }),
-        })
-      ),
-    })
-  )
+          }
+        )
+
+        return {
+          ...route,
+          stoptimes: stoptimes,
+        }
+      }
+    )
+
+    return {
+      ...stop,
+      routes: routes,
+    }
+  })
+}
+
+const mapArrivalTime = (arrivalTime: number): AverageTime => {
+  return arrivalTime === 0
+    ? "0"
+    : arrivalTime <= 5
+    ? "5"
+    : arrivalTime > 5 && arrivalTime <= 10
+    ? "10"
+    : arrivalTime > 10 && arrivalTime <= 15
+    ? "15"
+    : arrivalTime > 15 && arrivalTime <= 20
+    ? "20"
+    : arrivalTime > 20 && arrivalTime <= 30
+    ? "30"
+    : arrivalTime > 30 && arrivalTime <= 45
+    ? "45"
+    : arrivalTime > 45 && arrivalTime <= 60
+    ? "60"
+    : "60+"
 }

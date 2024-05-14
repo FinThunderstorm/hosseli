@@ -5,7 +5,7 @@ import { formatRoute, formatStop } from "../../utils/formatUtils"
 
 const StopMarker = ({ stop }: { stop: Stop }) => {
   return (
-    <Marker position={[stop.lat, stop.lon]}>
+    <Marker position={stop.position}>
       <Popup>
         <p>{formatStop(stop)}</p>
         <ul>
