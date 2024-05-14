@@ -1,7 +1,7 @@
-export const getStopsQuery = (lat: number, lon: number) => {
+export const getStopsQuery = (lat: number, lon: number, radius: number) => {
   return `
 {
-  stopsByRadius(lat: ${lat}, lon: ${lon}, radius: 500) {
+  stopsByRadius(lat: ${lat}, lon: ${lon}, radius: ${radius}) {
     edges {
       node {
         distance

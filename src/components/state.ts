@@ -4,11 +4,13 @@ import { proxy } from "valtio"
 
 export const searchState = proxy<{
   feature: Feature | null
+  radius: number
   addressOptions: Feature[]
   searchAddress: string
   isLoading: boolean
 }>({
   feature: null,
+  radius: 500,
   addressOptions: [],
   searchAddress: "",
   isLoading: false,
@@ -25,6 +27,10 @@ export const setSearchAddress = (newValue: string) => {
 
 export const setAddressOptions = (addresses: Feature[]) => {
   searchState.addressOptions = addresses
+}
+
+export const setRadius = (radius: number) => {
+  searchState.radius = radius
 }
 
 export const setFeature = (feature: Feature | null) => {
@@ -102,7 +108,9 @@ export const handleSearch = async (
     let lon = feature.geometry.coordinates[0]
 
     const response = await fetch(
-      `/api/byStops?lat=${lat}&lon=${lon}${isWaltti ? "&waltti=waltti" : ""}`
+      `/api/byStops?lat=${lat}&lon=${lon}&radius=${searchState.radius}${
+        isWaltti ? "&waltti=waltti" : ""
+      }`
     )
     const data = await response.json()
     routeState.byStops = data

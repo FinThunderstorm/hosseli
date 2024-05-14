@@ -7,6 +7,7 @@ export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams
   const lat = Number(searchParams.get("lat"))
   const lon = Number(searchParams.get("lon"))
+  const radius = Number(searchParams.get("radius")) || 500
   const waltti = searchParams.get("waltti")
 
   const response = await fetch(
@@ -22,7 +23,7 @@ export const GET = async (request: NextRequest) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: getStopsQuery(lat, lon),
+        query: getStopsQuery(lat, lon, radius),
       }),
     }
   )
