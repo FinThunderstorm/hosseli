@@ -1,5 +1,5 @@
 import { useProxy } from "valtio/utils"
-import { searchState } from "./state"
+import { searchState } from "../state"
 import { useMap } from "react-leaflet"
 import { useEffect } from "react"
 

@@ -1,10 +1,12 @@
 "use client"
-import CircularProgress from "@mui/material/CircularProgress"
 import { useProxy } from "valtio/utils"
-import { handleRouteSelect, handleStopSelect, routeState } from "./state"
-import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
-import { formatRoute, formatStop } from "./utils/formatUtils"
-import type { Route } from "./types"
+import { handleRouteSelect, handleStopSelect, routeState } from "../state"
+import { formatRoute, formatStop } from "../../utils/formatUtils"
+import CircularProgress from "@mui/material/CircularProgress"
+import Checkbox from "@mui/material/Checkbox"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import FormGroup from "@mui/material/FormGroup"
+import type { Route } from "../../types"
 
 const StopRouteSelector = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })

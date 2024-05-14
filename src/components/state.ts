@@ -1,5 +1,5 @@
 import { devtools } from "valtio/utils"
-import { Feature, Stop } from "./types"
+import { Feature, Stop } from "../types"
 import { proxy } from "valtio"
 
 export const searchState = proxy<{

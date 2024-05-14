@@ -1,19 +1,12 @@
 "use client"
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  Polyline,
-  CircleMarker,
-  Tooltip,
-} from "react-leaflet"
+import { MapContainer, TileLayer, Polyline } from "react-leaflet"
 import { useProxy } from "valtio/utils"
-import { routeState } from "./state"
+import { routeState } from "../state"
 import dayjs from "dayjs"
 import MapPositionHandler from "./MapPositionHandler"
-import type { Stop, Route, Stoptime } from "./types"
-import { formatRoute, formatStop } from "./utils/formatUtils"
+import StopMarker from "./StopMarker"
+import TripStopMarker from "./TripStopMarker"
+import type { Stop, Route, Stoptime, TripStop } from "../../types"
 
 const Map = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
@@ -74,18 +67,7 @@ const Map = () => {
             : true
         })
         .map((stop: Stop) => (
-          <>
-            <Marker key={stop.key} position={[stop.lat, stop.lon]}>
-              <Popup key={stop.key}>
-                <p>{formatStop(stop)}</p>
-                <ul>
-                  {stop.routes.map((route: Route) => (
-                    <li key={route.key}>{formatRoute(route)}</li>
-                  ))}
-                </ul>
-              </Popup>
-            </Marker>
-          </>
+          <StopMarker key={stop.key} stop={stop} />
         ))}
       {routePositions.map((rp: Stoptime, index: number) => (
         <Polyline
@@ -96,42 +78,9 @@ const Map = () => {
           positions={rp.positionsFromStop}
         />
       ))}
-      {stoptimes.map((st: any) => {
-        return (
-          <CircleMarker
-            key={st.key}
-            center={[st.lat, st.lon]}
-            radius={4}
-            color="#666666"
-          >
-            <Popup>
-              <ul>
-                <li>
-                  <b>Stop:</b> {st.code} {st.name}
-                </li>
-                <li>
-                  <b>Route:</b> {st.routeCode} {st.routeName}
-                </li>
-                <li>
-                  <b>Arrives at:</b> {st.arrival}
-                </li>
-                <li>
-                  <b>Departures on:</b> {st.departure}
-                </li>
-                <li>
-                  <b>Time since start:</b> {st.arrivalTimeFromStart}
-                </li>
-                <li>
-                  <b>Time group since start:</b> {st.arrivalTimeFromStartOver}
-                </li>
-              </ul>
-            </Popup>
-            {(st.arrivalTimeFromStart || st.arrivalTimeFromStart) && (
-              <Tooltip permanent>{st.arrivalTimeFromStart}</Tooltip>
-            )}
-          </CircleMarker>
-        )
-      })}
+      {stoptimes.map((st: TripStop) => (
+        <TripStopMarker st={st} />
+      ))}
     </MapContainer>
   )
 }

@@ -1,18 +1,18 @@
 "use client"
-import Button from "@mui/material/Button"
-import TextField from "@mui/material/TextField"
-import Autocomplete from "@mui/material/Autocomplete"
 import { useProxy } from "valtio/utils"
 import {
   handleSearch,
   searchAddress,
   searchState,
   setSearchAddress,
-} from "./state"
-import { Feature } from "./types"
-import Typography from "@mui/material/Typography"
+} from "../state"
+import Autocomplete from "@mui/material/Autocomplete"
+import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
-import { CircularProgress } from "@mui/material"
+import CircularProgress from "@mui/material/CircularProgress"
+import TextField from "@mui/material/TextField"
+import Typography from "@mui/material/Typography"
+import type { Feature } from "../../types"
 
 const Search = ({ isWaltti }: { isWaltti: boolean }) => {
   const searchSnapshot = useProxy(searchState, { sync: true })
@@ -26,6 +26,7 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
         type="text"
         className="border me-8"
         label="Address"
+        fullWidth
         value={searchSnapshot.searchAddress}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setSearchAddress(e.target.value)

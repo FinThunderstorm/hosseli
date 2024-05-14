@@ -1,4 +1,4 @@
-export const getQuery = (lat: number, lon: number) => {
+export const getStopsQuery = (lat: number, lon: number) => {
   return `
 {
   stopsByRadius(lat: ${lat}, lon: ${lon}, radius: 500) {
