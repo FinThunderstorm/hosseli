@@ -5,7 +5,7 @@ import Search from "./Search"
 
 const Sidebar = ({ isWaltti }: { isWaltti: boolean }) => {
   return (
-    <Paper elevation={2} className="sidebar p-2">
+    <Paper elevation={2} className="sidebar px-2">
       <Search isWaltti={isWaltti} />
       <StopRouteSelector />
     </Paper>

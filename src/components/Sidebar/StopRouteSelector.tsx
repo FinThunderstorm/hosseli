@@ -14,7 +14,7 @@ const StopRouteSelector = () => {
   return (
     <>
       {!routeSnapshot.isLoading && (
-        <div>
+        <div className="px-2">
           {routeSnapshot.byStops.map((stop) => {
             return (
               <div key={stop.gtfsId}>
@@ -34,7 +34,7 @@ const StopRouteSelector = () => {
                 </FormGroup>
                 {stop.routes.map((route: Route) => {
                   return (
-                    <div className="pl-8" key={route.key}>
+                    <div className="pl-10" key={route.key}>
                       <FormGroup>
                         <FormControlLabel
                           control={
