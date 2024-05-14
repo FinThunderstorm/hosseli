@@ -65,6 +65,7 @@ export type Stoptime = {
   arrival: string
   departure: string
   stops: TripStop[]
+  averageTimes: AverageTimeLocation[]
 }
 
 export type TripStop = {

@@ -10,6 +10,7 @@ import type {
   Stoptime,
   TripStop,
 } from "../types"
+import { averages } from "./constraints"
 
 dayjs.extend(isSameOrAfter)
 
@@ -72,12 +73,7 @@ export const mapHSLData = (input: any): Stop[] => {
               .map((g: Coordinate): { pos: Coordinate; dist: number } => {
                 return {
                   pos: g,
-                  dist:
-                    edge.node.stop.lat === g[0] && edge.node.stop.lon === g[1]
-                      ? 0
-                      : distanceFrom([edge.node.stop.lat, edge.node.stop.lon])
-                          .to([g[0], g[1]])
-                          .in("cm"),
+                  dist: calculateDistanceBetween(stop.position, g),
                 }
               })
               .sort((a, b) => a.dist - b.dist)[0]
@@ -88,7 +84,7 @@ export const mapHSLData = (input: any): Stop[] => {
                 g[1] === nearestPosition.pos[1]
             )
 
-            const stoptimeOut: Omit<Stoptime, "stops"> = {
+            const stoptimeOut: Omit<Stoptime, "stops" | "averageTimes"> = {
               key: `${stop.key}-${route.key}-${stoptime.trip.gtfsId}`,
               gtfsId: stoptime.trip.gtfsId,
               routeShortName: stoptime.trip.routeShortName,
@@ -143,9 +139,24 @@ export const mapHSLData = (input: any): Stop[] => {
                 return index >= indexOfStop
               })
 
+            const averageTimes = averages
+              .map((avg) =>
+                stops
+                  .filter((ts) => ts.arrivalTimeFromStartOver === avg)
+                  .sort(
+                    (a, b) => b.arrivalTimeFromStart - a.arrivalTimeFromStart
+                  )
+              )
+              .filter((avgs) => avgs.length > 0)
+              .map((avgs) => ({
+                averageTime: avgs[0].arrivalTimeFromStartOver,
+                position: avgs[0].position,
+              }))
+
             return {
               ...stoptimeOut,
               stops: stops,
+              averageTimes: averageTimes,
             }
           }
         )
@@ -182,4 +193,17 @@ const mapArrivalTime = (arrivalTime: number): AverageTime => {
     : arrivalTime > 45 && arrivalTime <= 60
     ? "60"
     : "60+"
+}
+
+export const calculateDistanceBetween = (
+  coord1?: Coordinate,
+  coord2?: Coordinate
+): number => {
+  if (!coord1 || !coord2) {
+    return Infinity
+  }
+
+  return coord1[0] === coord2[0] && coord1[0] === coord2[1]
+    ? 0
+    : distanceFrom(coord1).to(coord2).in("cm")
 }
