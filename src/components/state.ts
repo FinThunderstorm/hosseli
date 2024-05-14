@@ -67,21 +67,21 @@ export const handleStopSelect = (key: string, isChecked: boolean) => {
   routeState.stops = isChecked
     ? [...routeState.stops, key]
     : routeState.stops.filter((os: string) => os !== key)
-  console.log("stops", routeState.stops)
-  routeState.routes = routeState.routes.filter((or: string) => or.includes(key))
-  console.log("routes", routeState.routes)
+  routeState.routes = routeState.routes.filter(
+    (or: string) => !or.includes(key)
+  )
 }
 
 export const handleRouteSelect = (key: string, isChecked: boolean) => {
+  const stopKey = key.split("-")[0]
+  const stopInStops = routeState.stops.includes(stopKey)
+
   routeState.routes = isChecked
     ? (routeState.routes = [...routeState.routes, key])
     : routeState.routes.filter((or: string) => or !== key)
-  routeState.stops = isChecked
-    ? routeState.stops.includes(key.split("-")[0]) &&
-      routeState.routes.filter((r) => r.includes(key.split("-")[0])).length < 1
-      ? routeState.stops
-      : [...routeState.stops, key.split("-")[0]]
-    : routeState.stops.filter((os: string) => os !== key.split("-")[0])
+  if (!stopInStops) {
+    routeState.stops = [...routeState.stops, stopKey]
+  }
 }
 
 export const handleSearch = async (
