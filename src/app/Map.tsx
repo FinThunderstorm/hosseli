@@ -6,42 +6,49 @@ import {
   TileLayer,
   Polyline,
   Circle,
+  CircleMarker,
+  Tooltip,
 } from "react-leaflet"
 import { useProxy } from "valtio/utils"
 import { routeState } from "./state"
 import dayjs from "dayjs"
 import MapPositionHandler from "./MapPositionHandler"
+import type { Stop, Route, Stoptime } from "./types"
 
 const Map = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
 
-  const routePositions = routeSnapshot.byStops.flatMap((stop: any) =>
-    stop.routes
-      .filter((route: any) => {
-        if (
-          routeSnapshot.routes.length === 0 &&
-          routeSnapshot.stops.length === 0
-        ) {
-          return true
-        }
-        if (
-          routeSnapshot.stops.length > 0 &&
-          routeSnapshot.routes.length === 0
-        ) {
-          return routeSnapshot.stops.includes(stop.gtfsId)
-        }
-        if (routeSnapshot.stops.length > 0 && routeSnapshot.routes.length > 0) {
-          return (
-            routeSnapshot.stops.includes(stop.gtfsId) &&
-            routeSnapshot.routes.includes(route.code)
-          )
-        }
-        return routeSnapshot.routes.includes(route.code)
-      })
-      .flatMap((route: any) => route.stoptimes)
+  const routePositions: Stoptime[] = routeSnapshot.byStops.flatMap(
+    (stop: Stop) =>
+      stop.routes
+        .filter((route: Route) => {
+          if (
+            routeSnapshot.routes.length === 0 &&
+            routeSnapshot.stops.length === 0
+          ) {
+            return true
+          }
+          if (
+            routeSnapshot.stops.length > 0 &&
+            routeSnapshot.routes.length === 0
+          ) {
+            return routeSnapshot.stops.includes(stop.key)
+          }
+          if (
+            routeSnapshot.stops.length > 0 &&
+            routeSnapshot.routes.length > 0
+          ) {
+            return (
+              routeSnapshot.stops.includes(stop.key) &&
+              routeSnapshot.routes.includes(route.key)
+            )
+          }
+          return routeSnapshot.routes.includes(route.key)
+        })
+        .flatMap((route: Route): Stoptime[] => route.stoptimes)
   )
 
-  const stoptimes = routePositions.flatMap((rp: any) => rp.stoptimes)
+  const stoptimes = routePositions.flatMap((rp: Stoptime) => rp.stoptimes)
 
   const timeColors: Record<number, string> = {
     0: "#FFEF00",
@@ -68,12 +75,12 @@ const Map = () => {
       />
       <MapPositionHandler />
       {routeSnapshot.byStops
-        .filter((stop: any) =>
+        .filter((stop: Stop) =>
           routeSnapshot.stops.length > 0
             ? routeSnapshot.stops.includes(stop.gtfsId)
             : true
         )
-        .map((stop: any) => (
+        .map((stop: Stop) => (
           <>
             <Marker key={stop.gtfsId} position={[stop.lat, stop.lon]}>
               <Popup>
@@ -81,7 +88,7 @@ const Map = () => {
                   {stop.gtfsId} {stop.code} {stop.name}
                 </p>
                 <ul>
-                  {stop.routes.map((route: any) => (
+                  {stop.routes.map((route: Route) => (
                     <li key={route.code}>{route.name}</li>
                   ))}
                 </ul>
@@ -89,7 +96,7 @@ const Map = () => {
             </Marker>
           </>
         ))}
-      {routePositions.map((rp: any, index: number) => (
+      {routePositions.map((rp: Stoptime, index: number) => (
         <Polyline
           key={rp.key}
           pathOptions={{
@@ -100,13 +107,18 @@ const Map = () => {
       ))}
       {stoptimes.map((st: any) => {
         return (
-          <Circle
+          <CircleMarker
             center={[st.lat, st.lon]}
             radius={7}
             color={timeColors[st.arrivalTimeFromStartOver]}
           >
             <Popup>{JSON.stringify(st)}</Popup>
-          </Circle>
+            <Tooltip permanent>
+              {st.arrivalTimeFromStart || st.arrivalTimeFromStart === 0
+                ? st.arrivalTimeFromStart
+                : ""}
+            </Tooltip>
+          </CircleMarker>
         )
       })}
     </MapContainer>

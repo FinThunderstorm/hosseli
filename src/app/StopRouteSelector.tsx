@@ -1,43 +1,62 @@
 "use client"
+import CircularProgress from "@mui/material/CircularProgress"
 import { useProxy } from "valtio/utils"
 import { handleRouteSelect, handleStopSelect, routeState } from "./state"
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
+import { formatRoute, formatStop } from "./utils/formatUtils"
+import type { Route, Stop } from "./types"
 
 const StopRouteSelector = () => {
   const routeSnapshot = useProxy(routeState, { sync: true })
 
   return (
-    <ul>
-      {routeSnapshot.byStops.map((stop: any) => (
-        <li key={stop.gtfsId}>
-          <div className="flex gap-2">
-            <div className="flex gap-2 justify-items-start items-start">
-              <input
-                type="checkbox"
-                className="p-1"
-                onChange={(e) => {
-                  handleStopSelect(stop.gtfsId, e.target.checked)
-                }}
-              />
-              {stop.code}
-            </div>
-            <ul>
-              {stop.routes.map((route: any) => (
-                <li key={route.gtfsId} className="flex gap-2">
-                  <input
-                    type="checkbox"
-                    className="m-1"
-                    onChange={(e) => {
-                      handleRouteSelect(route.code, e.target.checked)
-                    }}
+    <>
+      {!routeSnapshot.isLoading && (
+        <div>
+          {routeSnapshot.byStops.map((stop) => {
+            return (
+              <div key={stop.gtfsId}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        sx={{ mr: 1 }}
+                        checked={routeSnapshot.stops.includes(stop.key)}
+                        onChange={(e) => {
+                          handleStopSelect(stop.key, e.target.checked)
+                        }}
+                      />
+                    }
+                    label={formatStop(stop)}
                   />
-                  {route.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </li>
-      ))}
-    </ul>
+                </FormGroup>
+                {stop.routes.map((route: Route) => {
+                  return (
+                    <div className="pl-8">
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              sx={{ mr: 1 }}
+                              checked={routeSnapshot.routes.includes(route.key)}
+                              onChange={(e) => {
+                                handleRouteSelect(route.key, e.target.checked)
+                              }}
+                            />
+                          }
+                          label={formatRoute(route)}
+                        />
+                      </FormGroup>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {routeSnapshot.isLoading && <CircularProgress />}
+    </>
   )
 }
 

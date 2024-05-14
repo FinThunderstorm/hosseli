@@ -6,15 +6,16 @@ import { useProxy } from "valtio/utils"
 import {
   handleSearch,
   searchAddress,
-  searchStore,
+  searchState,
   setSearchAddress,
 } from "./state"
 import { Feature } from "./types"
 import Typography from "@mui/material/Typography"
 import Card from "@mui/material/Card"
+import { CircularProgress } from "@mui/material"
 
 const Search = ({ isWaltti }: { isWaltti: boolean }) => {
-  const searchSnapshot = useProxy(searchStore, { sync: true })
+  const searchSnapshot = useProxy(searchState, { sync: true })
 
   return (
     <Card className="search flex flex-col gap-2 p-2 mb-2 backdrop-blur">
@@ -38,26 +39,28 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
       >
         search
       </Button>
-      {searchSnapshot.addressOptions.length > 0 && (
-        <Autocomplete<Feature>
-          renderInput={(props) => (
-            <TextField
-              type="text"
-              className="border me-8"
-              label="Options"
-              {...props}
-            />
-          )}
-          getOptionLabel={(opt) => opt.properties.label}
-          getOptionKey={(opt) => opt.properties.id}
-          isOptionEqualToValue={(a, b) => a.properties.id === b.properties.id}
-          options={searchSnapshot.addressOptions}
-          onChange={(e, newValue) => {
-            if (newValue) handleSearch(newValue, isWaltti)
-          }}
-          value={searchSnapshot.feature}
-        />
-      )}
+      {searchSnapshot.addressOptions.length > 0 &&
+        !searchSnapshot.isLoading && (
+          <Autocomplete<Feature>
+            renderInput={(props) => (
+              <TextField
+                type="text"
+                className="border me-8"
+                label="Options"
+                {...props}
+              />
+            )}
+            getOptionLabel={(opt) => opt.properties.label}
+            getOptionKey={(opt) => opt.properties.id}
+            isOptionEqualToValue={(a, b) => a.properties.id === b.properties.id}
+            options={searchSnapshot.addressOptions}
+            onChange={(e, newValue) => {
+              if (newValue) handleSearch(newValue, isWaltti)
+            }}
+            value={searchSnapshot.feature}
+          />
+        )}
+      {searchSnapshot.isLoading && <CircularProgress />}
     </Card>
   )
 }

@@ -30,3 +30,49 @@ export type Feature = {
     label: string
   }
 }
+
+export type Coordinate = [number, number]
+
+export type Stop = {
+  key: string
+  distance: number
+  code: string
+  gtfsId: string
+  locationType: string
+  platformCode: string
+  lat: number
+  lon: number
+  name: string
+  routes: Route[]
+}
+
+export type Route = {
+  key: string
+  gtfsId: string
+  code: string
+  headsign: string
+  name: string
+  mode: string
+  shortName: string
+  longName: string
+  stoptimes: Stoptime[]
+}
+
+export type Stoptime = {
+  key: string
+  gtfsId: string
+  routeShortName: string
+  geometry: Coordinate[]
+  nearestPosition: Coordinate
+  positionsFromStop: Coordinate[]
+  color: string
+  arrival: string
+  departure: string
+  stoptimes: any[]
+}
+
+export type RouteStop = {
+  code: string
+  name: string
+  gtfsId: string
+}

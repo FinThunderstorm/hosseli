@@ -1,42 +1,46 @@
 import { devtools } from "valtio/utils"
-import { Feature } from "./types"
+import { Feature, Stop } from "./types"
 import { proxy } from "valtio"
 
-export const searchStore = proxy<{
+export const searchState = proxy<{
   feature: Feature | null
   addressOptions: Feature[]
   searchAddress: string
+  isLoading: boolean
 }>({
   feature: null,
   addressOptions: [],
   searchAddress: "",
+  isLoading: false,
 })
 
-const unsubSearch = devtools(searchStore, {
+const unsubSearch = devtools(searchState, {
   name: "searchState",
   enabled: true,
 })
 
 export const setSearchAddress = (newValue: string) => {
-  searchStore.searchAddress = newValue
+  searchState.searchAddress = newValue
 }
 
 export const setAddressOptions = (addresses: Feature[]) => {
-  searchStore.addressOptions = addresses
+  searchState.addressOptions = addresses
 }
 
 export const setFeature = (feature: Feature | null) => {
-  searchStore.feature = feature
+  searchState.feature = feature
 }
 
 export const searchAddress = async () => {
   try {
+    searchState.isLoading = true
     const response = await fetch(
-      `/api/addresses?searchAddress=${searchStore.searchAddress}`
+      `/api/addresses?searchAddress=${searchState.searchAddress}`
     )
     const addresses = await response.json()
     setAddressOptions(addresses)
     setFeature(null)
+    searchState.isLoading = false
   } catch (error) {
     console.error(error)
   }
@@ -45,11 +49,13 @@ export const searchAddress = async () => {
 export const routeState = proxy<{
   stops: string[]
   routes: string[]
-  byStops: any[]
+  byStops: Stop[]
+  isLoading: boolean
 }>({
   stops: [],
   routes: [],
-  byStops: [],
+  byStops: [], //mapHSLData(TestData),
+  isLoading: false,
 })
 
 const unsubRoute = devtools(routeState, {
@@ -60,13 +66,13 @@ const unsubRoute = devtools(routeState, {
 export const handleStopSelect = (gtfsId: string, isChecked: boolean) => {
   routeState.stops = isChecked
     ? [...routeState.stops, gtfsId]
-    : routeState.stops.filter((os: any) => os !== gtfsId)
+    : routeState.stops.filter((os: string) => os !== gtfsId)
 }
 
 export const handleRouteSelect = (code: string, isChecked: boolean) => {
   routeState.routes = isChecked
     ? (routeState.routes = [...routeState.routes, code])
-    : routeState.routes.filter((or: any) => or !== code)
+    : routeState.routes.filter((or: string) => or !== code)
 }
 
 export const handleSearch = async (
@@ -76,7 +82,12 @@ export const handleSearch = async (
   try {
     if (!feature) return
 
-    searchStore.feature = feature
+    routeState.isLoading = true
+    routeState.routes = []
+    routeState.stops = []
+    routeState.byStops = []
+
+    searchState.feature = feature
 
     let lat = feature.geometry.coordinates[1]
     let lon = feature.geometry.coordinates[0]
@@ -86,6 +97,7 @@ export const handleSearch = async (
     )
     const data = await response.json()
     routeState.byStops = data
+    routeState.isLoading = false
   } catch (error) {
     console.error(error)
   }

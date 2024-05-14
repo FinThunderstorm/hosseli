@@ -4,6 +4,7 @@ export const getQuery = (lat: number, lon: number) => {
   stopsByRadius(lat: ${lat}, lon: ${lon}, radius: 500) {
     edges {
       node {
+        distance
         stop {
           gtfsId
           name
@@ -11,13 +12,17 @@ export const getQuery = (lat: number, lon: number) => {
           lat
           lon
           locationType
+          platformCode
           stoptimesForPatterns(numberOfDepartures: 1, startTime: 0, omitNonPickups: true) {
             pattern {
               code
               name
               headsign
               route {
+                gtfsId
                 mode
+                shortName
+                longName
               }
             }
             stoptimes {
@@ -27,6 +32,8 @@ export const getQuery = (lat: number, lon: number) => {
               trip {
                 gtfsId
                 routeShortName
+                tripShortName
+                tripHeadsign
                 geometry
                 stoptimesForDate {
                   stop {
