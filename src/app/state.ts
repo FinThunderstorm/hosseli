@@ -54,7 +54,7 @@ export const routeState = proxy<{
 }>({
   stops: [],
   routes: [],
-  byStops: [], //mapHSLData(TestData),
+  byStops: [],
   isLoading: false,
 })
 
@@ -63,16 +63,25 @@ const unsubRoute = devtools(routeState, {
   enabled: true,
 })
 
-export const handleStopSelect = (gtfsId: string, isChecked: boolean) => {
+export const handleStopSelect = (key: string, isChecked: boolean) => {
   routeState.stops = isChecked
-    ? [...routeState.stops, gtfsId]
-    : routeState.stops.filter((os: string) => os !== gtfsId)
+    ? [...routeState.stops, key]
+    : routeState.stops.filter((os: string) => os !== key)
+  console.log("stops", routeState.stops)
+  routeState.routes = routeState.routes.filter((or: string) => or.includes(key))
+  console.log("routes", routeState.routes)
 }
 
-export const handleRouteSelect = (code: string, isChecked: boolean) => {
+export const handleRouteSelect = (key: string, isChecked: boolean) => {
   routeState.routes = isChecked
-    ? (routeState.routes = [...routeState.routes, code])
-    : routeState.routes.filter((or: string) => or !== code)
+    ? (routeState.routes = [...routeState.routes, key])
+    : routeState.routes.filter((or: string) => or !== key)
+  routeState.stops = isChecked
+    ? routeState.stops.includes(key.split("-")[0]) &&
+      routeState.routes.filter((r) => r.includes(key.split("-")[0])).length < 1
+      ? routeState.stops
+      : [...routeState.stops, key.split("-")[0]]
+    : routeState.stops.filter((os: string) => os !== key.split("-")[0])
 }
 
 export const handleSearch = async (

@@ -38,10 +38,11 @@ const Map = () => {
             routeSnapshot.stops.length > 0 &&
             routeSnapshot.routes.length > 0
           ) {
-            return (
-              routeSnapshot.stops.includes(stop.key) &&
-              routeSnapshot.routes.includes(route.key)
-            )
+            const isInRoutes = routeSnapshot.routes.includes(route.key)
+            const isInStops = routeSnapshot.stops.includes(stop.key)
+            const routeKeyIncludesStop = route.key.includes(stop.key)
+
+            return isInRoutes && (isInStops || routeKeyIncludesStop)
           }
           return routeSnapshot.routes.includes(route.key)
         })
@@ -49,17 +50,6 @@ const Map = () => {
   )
 
   const stoptimes = routePositions.flatMap((rp: Stoptime) => rp.stoptimes)
-
-  const timeColors: Record<number, string> = {
-    0: "#FFEF00",
-    5: "#ffd300",
-    10: "#feb700",
-    15: "#f99b00",
-    20: "#f37e00",
-    30: "#e96000",
-    45: "#dd3f00",
-    60: "#cf0a0c",
-  }
 
   return (
     <MapContainer
@@ -75,11 +65,14 @@ const Map = () => {
       />
       <MapPositionHandler />
       {routeSnapshot.byStops
-        .filter((stop: Stop) =>
-          routeSnapshot.stops.length > 0
-            ? routeSnapshot.stops.includes(stop.gtfsId)
+        .filter((stop: Stop) => {
+          return routeSnapshot.stops.length > 0 ||
+            routeSnapshot.routes.length > 0
+            ? routeSnapshot.stops.includes(stop.key) ||
+                routeSnapshot.routes.filter((route) => route.includes(stop.key))
+                  .length > 0
             : true
-        )
+        })
         .map((stop: Stop) => (
           <>
             <Marker key={stop.gtfsId} position={[stop.lat, stop.lon]}>
