@@ -10,25 +10,30 @@ export const GET = async (request: NextRequest) => {
   const radius = Number(searchParams.get("radius")) || 500
   const waltti = searchParams.get("waltti")
 
-  const response = await fetch(
-    `https://api.digitransit.fi/routing/v1/routers/${
-      waltti === "waltti" ? "waltti" : "hsl"
-    }/index/graphql?digitransit-subscription-key=${
-      process.env.DIGITRANSIT_SUBSCRIPTION_KEY
-    }`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        query: getStopsQuery(lat, lon, radius),
-      }),
-    }
-  )
-  const data = await response.json()
-  const mapped = mapHSLData(data)
+  try {
+    const response = await fetch(
+      `https://api.digitransit.fi/routing/v1/routers/${
+        waltti === "waltti" ? "waltti" : "hsl"
+      }/index/graphql?digitransit-subscription-key=${
+        process.env.DIGITRANSIT_SUBSCRIPTION_KEY
+      }`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: getStopsQuery(lat, lon, radius),
+        }),
+      }
+    )
+    const data = await response.json()
+    const mapped = mapHSLData(data)
 
-  return Response.json(mapped)
+    return Response.json(mapped)
+  } catch (error) {
+    console.error(error)
+    return Response.error()
+  }
 }

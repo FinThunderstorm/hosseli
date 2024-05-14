@@ -43,10 +43,12 @@ export const searchAddress = async () => {
     const response = await fetch(
       `/api/addresses?searchAddress=${searchState.searchAddress}`
     )
-    const addresses = await response.json()
-    setAddressOptions(addresses)
-    setFeature(null)
     searchState.isLoading = false
+    if (response.status === 200) {
+      const addresses = await response.json()
+      setAddressOptions(addresses)
+      setFeature(null)
+    }
   } catch (error) {
     console.error(error)
   }
@@ -94,28 +96,26 @@ export const handleSearch = async (
   feature: Feature | null,
   isWaltti: boolean
 ) => {
-  try {
-    if (!feature) return
+  if (!feature) return
 
-    routeState.isLoading = true
-    routeState.routes = []
-    routeState.stops = []
-    routeState.byStops = []
+  routeState.isLoading = true
+  routeState.routes = []
+  routeState.stops = []
+  routeState.byStops = []
 
-    searchState.feature = feature
+  searchState.feature = feature
 
-    let lat = feature.geometry.coordinates[1]
-    let lon = feature.geometry.coordinates[0]
+  let lat = feature.geometry.coordinates[1]
+  let lon = feature.geometry.coordinates[0]
 
-    const response = await fetch(
-      `/api/byStops?lat=${lat}&lon=${lon}&radius=${searchState.radius}${
-        isWaltti ? "&waltti=waltti" : ""
-      }`
-    )
+  const response = await fetch(
+    `/api/byStops?lat=${lat}&lon=${lon}&radius=${searchState.radius}${
+      isWaltti ? "&waltti=waltti" : ""
+    }`
+  )
+  routeState.isLoading = false
+  if (response.status === 200) {
     const data = await response.json()
     routeState.byStops = data
-    routeState.isLoading = false
-  } catch (error) {
-    console.error(error)
   }
 }

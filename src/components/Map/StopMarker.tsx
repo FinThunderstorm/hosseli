@@ -8,6 +8,12 @@ const StopMarker = ({ stop }: { stop: Stop }) => {
     <Marker position={stop.position}>
       <Popup>
         <p>{formatStop(stop)}</p>
+        <p>
+          <b>Distance:</b> {stop.distance}m
+        </p>
+        <p>
+          <b>Routes leaving from stop:</b>
+        </p>
         <ul>
           {stop.routes.map((route: Route) => (
             <li key={route.key}>{formatRoute(route)}</li>
