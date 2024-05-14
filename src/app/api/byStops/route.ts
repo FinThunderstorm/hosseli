@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server"
-import { getQuery } from "../../utils/api"
-import { mapHSLData } from "../../utils/dataMapper"
+import { getStopsQuery } from "../../../utils/queries"
+import { mapHSLData } from "../../../utils/dataUtils"
 
 export const dynamic = "force-dynamic"
 export const GET = async (request: NextRequest) => {
@@ -22,7 +22,7 @@ export const GET = async (request: NextRequest) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: getQuery(lat, lon),
+        query: getStopsQuery(lat, lon),
       }),
     }
   )

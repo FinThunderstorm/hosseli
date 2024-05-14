@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import "./styles.css"
+import "../styles/styles.css"
 import "leaflet/dist/leaflet.css"
 import "@fontsource/roboto/300.css"
 import "@fontsource/roboto/400.css"

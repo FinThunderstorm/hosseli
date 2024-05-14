@@ -1,7 +1,7 @@
 "use client"
 import dynamic from "next/dynamic"
-import Sidebar from "../Sidebar"
-const Map = dynamic(() => import("../Map"), { ssr: false })
+import Sidebar from "../../components/Sidebar"
+const Map = dynamic(() => import("../../components/Map"), { ssr: false })
 
 const Page = () => {
   return (
