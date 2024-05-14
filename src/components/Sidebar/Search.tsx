@@ -41,6 +41,11 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
         label="Address"
         fullWidth
         value={searchSnapshot.searchAddress}
+        onKeyDown={(e) => {
+          if (e.code === "Enter") {
+            searchAddress()
+          }
+        }}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setSearchAddress(e.target.value)
         }}
@@ -51,7 +56,11 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
           searchAddress()
         }}
       >
-        search
+        {searchSnapshot.isLoading ? (
+          <CircularProgress size={24} sx={{ color: "white" }} />
+        ) : (
+          "search"
+        )}
       </Button>
       {searchSnapshot.addressOptions.length > 0 &&
         !searchSnapshot.isLoading && (
@@ -92,7 +101,6 @@ const Search = ({ isWaltti }: { isWaltti: boolean }) => {
             </Grid>
           </Grid>
         )}
-      {searchSnapshot.isLoading && <CircularProgress />}
     </div>
   )
 }
