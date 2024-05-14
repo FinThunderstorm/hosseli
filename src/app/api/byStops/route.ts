@@ -28,12 +28,19 @@ export const GET = async (request: NextRequest) => {
         }),
       }
     )
+
+    if (response.status !== 200) {
+      throw new Error("Digitransit API throwed " + response.status)
+    }
+
     const data = await response.json()
     const mapped = mapHSLData(data)
 
     return Response.json(mapped)
   } catch (error) {
     console.error(error)
-    return Response.error()
+    return new Response(`Internal Server Error`, {
+      status: 500,
+    })
   }
 }

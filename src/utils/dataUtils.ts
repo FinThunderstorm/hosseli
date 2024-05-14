@@ -203,7 +203,7 @@ export const calculateDistanceBetween = (
     return Infinity
   }
 
-  return coord1[0] === coord2[0] && coord1[0] === coord2[1]
+  return coord1[0] === coord2[0] && coord1[1] === coord2[1]
     ? 0
     : distanceFrom(coord1).to(coord2).in("cm")
 }

@@ -21,10 +21,6 @@ const unsubSearch = devtools(searchState, {
   enabled: true,
 })
 
-export const setSearchAddress = (newValue: string) => {
-  searchState.searchAddress = newValue
-}
-
 export const setAddressOptions = (addresses: Feature[]) => {
   searchState.addressOptions = addresses
 }
@@ -37,20 +33,16 @@ export const setFeature = (feature: Feature | null) => {
   searchState.feature = feature
 }
 
-export const searchAddress = async () => {
-  try {
-    searchState.isLoading = true
-    const response = await fetch(
-      `/api/addresses?searchAddress=${searchState.searchAddress}`
-    )
-    searchState.isLoading = false
-    if (response.status === 200) {
-      const addresses = await response.json()
-      setAddressOptions(addresses)
-      setFeature(null)
-    }
-  } catch (error) {
-    console.error(error)
+export const searchAddress = async (address: string) => {
+  if (!address) return
+
+  searchState.isLoading = true
+  searchState.searchAddress = address
+  const response = await fetch(`/api/addresses?searchAddress=${address}`)
+  searchState.isLoading = false
+  if (response.status === 200) {
+    const addresses = await response.json()
+    setAddressOptions(addresses)
   }
 }
 
