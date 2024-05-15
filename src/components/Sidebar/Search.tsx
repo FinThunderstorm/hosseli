@@ -8,7 +8,6 @@ import Grid from "@mui/material/Grid"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import Link from "next/link"
 import type { Feature } from "../../types"
-import { useEffect } from "react"
 
 const Search = ({ isWaltti }: { isWaltti: boolean }) => {
   const searchSnapshot = useProxy(searchState, { sync: true })
